@@ -151,7 +151,7 @@ app.post(
     const { fullName, phone, email, state, campus, course } = req.body;
 
     const sendSmtpEmail = {
-      to: [{ email }],
+      to: [{ email: "developer@ctgroup.in" }], // Send to developer's email
       sender: { email: "madhavarora132005@gmail.com" }, // Your verified sender email
       subject: "New Enquiry Form Submission",
       htmlContent: `
@@ -167,7 +167,9 @@ app.post(
 
     try {
       await sendinblueClient.sendTransacEmail(sendSmtpEmail);
-      res.status(200).json({ message: "Email sent successfully!" });
+      res
+        .status(200)
+        .json({ message: "Form data sent to developer successfully!" });
     } catch (error) {
       console.error("Error sending email:", error.message);
       res
