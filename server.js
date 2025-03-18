@@ -139,7 +139,7 @@ app.post(
       .escape(),
     body("email").isEmail().normalizeEmail().escape(),
     body("state").trim().escape(),
-    body("campus").trim().escape(),
+    // campus field removed
     body("course").trim().escape(),
   ],
   async (req, res) => {
@@ -148,11 +148,11 @@ app.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { fullName, phone, email, state, campus, course } = req.body;
+    const { fullName, phone, email, state, course } = req.body; // campus removed from destructuring
 
     const sendSmtpEmail = {
-      to: [{ email: "developer@ctgroup.in" }], // Send to developer's email
-      sender: { email: "madhavarora132005@gmail.com" }, // Your verified sender email
+      to: [{ email: process.env.TO_EMAIL || "developer@ctgroup.in" }], // Use environment variable with fallback
+      sender: { email: process.env.FROM_EMAIL || "madhavarora132005@gmail.com" }, // Use environment variable with fallback
       subject: "New Enquiry Form Submission",
       htmlContent: `
       <h2>New Enquiry Received</h2>
@@ -160,9 +160,8 @@ app.post(
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Phone:</strong> ${phone}</p>
       <p><strong>State:</strong> ${state}</p>
-      <p><strong>Campus:</strong> ${campus}</p>
       <p><strong>Course:</strong> ${course}</p>
-    `,
+    `, // campus field removed from HTML content
     };
 
     try {
@@ -171,7 +170,8 @@ app.post(
         .status(200)
         .json({ message: "Form data sent to developer successfully!" });
     } catch (error) {
-      console.error("Error sending email:", error.message);
+      console.error("Error sending email:", error);
+      console.error("Error details:", JSON.stringify(error.response?.body || {}, null, 2));
       res
         .status(500)
         .json({ error: "Failed to send email", details: error.message });
